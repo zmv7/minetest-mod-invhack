@@ -84,10 +84,10 @@ local function inventory_formspec(name, inv, X, y)
 	end
 	return formspec, y
 end
-
+local grab = false
 -- Generate the entire formspec for this tool
 hacktool.formspec = function(user_name, player, inventory_name)
-	local formspec = ("size[8,5]")
+	local formspec = ("size[8,5.4]checkbox[0,5;grab;Grab item;"..tostring(grab).."]")
 
 	for i, inv_def in ipairs(inventories) do
 		formspec = formspec .. ("button[%f,4.2;1,1;inventory:%s;%s]"):format((i - 1) * 1, inv_def.name, inv_def.label)
@@ -140,7 +140,9 @@ minetest.register_on_player_receive_fields(function(user, form, pressed)
 		selected_item = starts_with(name, "item:")
 		if selected_item then break end
 	end
-
+if pressed.grab then
+grab = not grab
+end
 	-- Move an item from the target players inventory to the invhack user's inventory
 	if selected_item then
 		-- Split apart the button name to get the inventory and position
@@ -176,7 +178,9 @@ minetest.register_on_player_receive_fields(function(user, form, pressed)
 		-- Move the item into the invhack user's inventory
 		user_inventory:set_stack("main", empty_slot, stack)
 		-- Remove the item from the target player's inventory
+        if grab == true then
 		target_inventory:set_stack(inventory_name, stack_index, nil)
+        end
 		-- Trigger formspec reload - see below
 		selected_inventory = inventory_name
 	end
@@ -190,7 +194,8 @@ end)
 minetest.register_tool("invhack:tool", {
 	description = "Inventory hack tool",
 	range = 15,
-	inventory_image = "hacktool_inv.png",
+	--inventory_image = "hacktool_inv.png",
+	inventory_image = "[png:iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyRpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMy1jMDExIDY2LjE0NTY2MSwgMjAxMi8wMi8wNi0xNDo1NjoyNyAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNiAoTWFjaW50b3NoKSIgeG1wTU06SW5zdGFuY2VJRD0ieG1wLmlpZDo2N0I5QTQxQTBERDExMUU1OTFDQkRCRURBODFERDJGRSIgeG1wTU06RG9jdW1lbnRJRD0ieG1wLmRpZDo2N0I5QTQxQjBERDExMUU1OTFDQkRCRURBODFERDJGRSI+IDx4bXBNTTpEZXJpdmVkRnJvbSBzdFJlZjppbnN0YW5jZUlEPSJ4bXAuaWlkOjM1QjMyOUQxMEREMTExRTU5MUNCREJFREE4MUREMkZFIiBzdFJlZjpkb2N1bWVudElEPSJ4bXAuZGlkOjM1QjMyOUQyMEREMTExRTU5MUNCREJFREE4MUREMkZFIi8+IDwvcmRmOkRlc2NyaXB0aW9uPiA8L3JkZjpSREY+IDwveDp4bXBtZXRhPiA8P3hwYWNrZXQgZW5kPSJyIj8+qhktZwAAAWlJREFUeNrEVwsOgyAMFeLl9MB6PGadTbC2paWyNSE6HLxHPw9IpZTJYyklccAxV5qcliwENNAomTwC3DNO9EAvsNcTefqz5ZGrt8yVPQO2bQOX3hr0hQjSHOAItCrlGNOdC3Nj0O9zAJkynhlCVPXAvu83ECAhgeF3jpgaIppU16BSvi/n80i08502zqTv1+8nFteJJCQQNCAmEagXUPU9cFQd4EoM3AkNw1OHqScnZi00MDnGDydtTc4lL5cfqhJCJVDgwF4Q2w05F3vBLy/4hWhZFrH0tJL0kM+adNK4YQJydS/FeF1XdUueLW6U8qElTuY4aVqgCQ001AJNmDQM04EEXY+rfWMbNoeAhqGONcnyd84DnCrif7ishkqBfnhK54RoEqaaRA2slVpLAV33AuoJix7UBDQPDDkV16QuEiVMQBImbvWehEyRu6ELSAhF9oJbt+XQxUQDD0tvjxDRurbcA6z2EWAAYmcOt9YFCGEAAAAASUVORK5CYII=",
 	groups = {not_in_creative_inventory=1},
 	on_use = function(itemstack, user, pointed_thing)
 		local user_name = user:get_player_name()
